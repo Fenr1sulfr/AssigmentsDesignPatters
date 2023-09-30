@@ -54,9 +54,9 @@ func Start(g Gamer, gm *Game) {
 }
 
 func main() {
-	p1 := Player{name: "Alice", id: 1, choice: false}
-	p2 := Player{name: "Bob", id: 2, choice: true}
-	lp := LeadPlayer{name: "Leader", id: 3, thisChoiceMatter: true}
+	p1 := Player{name: "1000-7?", id: 1, choice: false}
+	p2 := Player{name: "all muted", id: 2, choice: true}
+	lp := LeadPlayer{name: "mid or feed", id: 3, thisChoiceMatter: true}
 
 	game := Game{
 		name:    "Dota 2",
