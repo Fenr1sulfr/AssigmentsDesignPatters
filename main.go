@@ -1,6 +1,8 @@
-package gotour
+package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Gamer interface {
 	accept(g *Game) error
@@ -32,7 +34,7 @@ func startTheGame(g Gamer, gm *Game) {
 	g.accept(gm)
 	gm.notifyAllPlayers()
 }
-func main() {
+func game() {
 	p1 := Player{
 		name: "all muted",
 		id:   1,
@@ -51,4 +53,7 @@ func main() {
 	}
 	startTheGame(&p1, &g)
 	startTheGame(&p2, &g)
+}
+func main() {
+	decorator()
 }

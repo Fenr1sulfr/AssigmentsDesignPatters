@@ -1,4 +1,4 @@
-package gotour
+package main
 
 import (
 	"fmt"
