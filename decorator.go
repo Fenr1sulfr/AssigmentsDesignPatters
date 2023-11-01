@@ -48,3 +48,10 @@ func decorator() {
 	}
 	fmt.Println(secondSpell.attack())
 }
+func main() {
+	p := progressBar{12}
+	p.getProgress()
+	P1 := progressBar{2}
+	P1.getProgress()
+
+}

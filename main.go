@@ -54,6 +54,3 @@ func game() {
 	startTheGame(&p1, &g)
 	startTheGame(&p2, &g)
 }
-func main() {
-	decorator()
-}

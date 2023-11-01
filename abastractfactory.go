@@ -1,4 +1,4 @@
-package assigmentgolangobservermainstrategygotour
+package main
 
 import "fmt"
 
