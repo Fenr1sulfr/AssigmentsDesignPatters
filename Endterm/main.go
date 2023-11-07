@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 var validRaces = []string{
@@ -23,15 +24,10 @@ var validRaces = []string{
 }
 
 var validClasses = []string{
-	"Priest",
-	"Mage",
-	"Warlock",
-	"Rogue",
-	"Druid",
-	"Hunter",
-	"Shaman",
-	"Warrior",
 	"Paladin",
+	"Mage",
+	"Warrior",
+	"Priest",
 	"Death Knight",
 }
 
@@ -49,16 +45,11 @@ var raceOptions = map[int]string{
 }
 
 var classOptions = map[int]string{
-	1:  "Priest",
-	2:  "Mage",
-	3:  "Warlock",
-	4:  "Rogue",
-	5:  "Druid",
-	6:  "Hunter",
-	7:  "Shaman",
-	8:  "Warrior",
-	9:  "Paladin",
-	10: "Death Knight",
+	1: "Paladin",
+	2: "Mage",
+	3: "Warrior",
+	4: "Priest",
+	5: "Death Knight",
 }
 
 type Character struct {
@@ -71,8 +62,18 @@ type CharacterBuilder struct {
 	character *Character
 }
 
+var builderInstance *CharacterBuilder
+var builderOnce sync.Once
+
+func GetCharacterBuilder() *CharacterBuilder {
+	builderOnce.Do(func() {
+		builderInstance = &CharacterBuilder{character: &Character{}}
+	})
+	return builderInstance
+}
+
 func NewCharacterBuilder() *CharacterBuilder {
-	return &CharacterBuilder{character: &Character{}}
+	return GetCharacterBuilder()
 }
 
 func (cb *CharacterBuilder) SetName(name string) *CharacterBuilder {
@@ -154,7 +155,7 @@ func main() {
 			return
 		}
 	} else {
-		fmt.Println("Invalid choice. Please enter 'N' for new character or 'L' for loading an existing character.")
+		fmt.Println("Invalid choice. Please enter 'N' for a new character or 'L' for loading an existing character.")
 		return
 	}
 
@@ -163,20 +164,14 @@ func main() {
 	fmt.Printf("Character Class: %s\n", character.Class)
 }
 
-func getUserInput() string { //string+os+bufio
+func getUserInput() string {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimSpace(input)
 	return input
 }
 
-func displayOptions(options map[int]string) {
-	for i, option := range options {
-		fmt.Printf("%d. %s\n", i, option)
-	}
-}
-
-func saveCharacterData(character *Character) { //io/ioutil
+func saveCharacterData(character *Character) {
 	data := fmt.Sprintf("Name: %s\nRace: %s\nClass: %s\n", character.Name, character.Race, character.Class)
 	err := ioutil.WriteFile("data.txt", []byte(data), 0644)
 	if err != nil {
@@ -184,7 +179,7 @@ func saveCharacterData(character *Character) { //io/ioutil
 	}
 }
 
-func loadCharacterData() *Character { //io/ioutil
+func loadCharacterData() *Character {
 	data, err := ioutil.ReadFile("data.txt")
 	if err != nil {
 		return nil
