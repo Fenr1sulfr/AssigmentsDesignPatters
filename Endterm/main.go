@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -94,72 +95,113 @@ func (cb *CharacterBuilder) Build() *Character {
 }
 
 func main() {
-	// Using the Builder pattern
-	fmt.Print("Enter your character's name: ")
-	name := getUserInput()
+	fmt.Print("Do you want to create a new character (N) or load an existing character (L): ")
+	choice := getUserInput()
 
-	var selectedRace string
-	for {
-		fmt.Println("Choose your character's race:")
-		for i, validRace := range validRaces {
-			fmt.Printf("%d. %s\n", i+1, validRace)
-		}
+	var character *Character
 
-		raceNumber := getUserInput()
-		raceIndex, err := strconv.Atoi(raceNumber)
-		if err != nil {
-			fmt.Println("Please enter a valid number.")
-			continue
-		}
+	if strings.ToLower(choice) == "n" {
+		fmt.Print("Enter your character's name: ")
+		name := getUserInput()
 
-		race, ok := raceOptions[raceIndex]
-		if !ok {
-			fmt.Println("Please enter a valid number from the list.")
-		} else {
-			selectedRace = race
+		var selectedRace string
+		for {
+			fmt.Println("Choose your character's race:")
+			for i, validRace := range validRaces {
+				fmt.Printf("%d. %s\n", i+1, validRace)
+			}
+
+			raceNumber := getUserInput()
+			raceIndex, err := strconv.Atoi(raceNumber)
+			if err != nil || raceIndex < 1 || raceIndex > len(raceOptions) {
+				fmt.Println("Please enter a valid number.")
+				continue
+			}
+
+			selectedRace = raceOptions[raceIndex]
 			break
 		}
-	}
 
-	var selectedClass string
-	for {
-		fmt.Println("Choose your character's class:")
-		for i, validClass := range validClasses {
-			fmt.Printf("%d. %s\n", i+1, validClass)
-		}
+		var selectedClass string
+		for {
+			fmt.Println("Choose your character's class:")
+			for i, validClass := range validClasses {
+				fmt.Printf("%d. %s\n", i+1, validClass)
+			}
 
-		classNumber := getUserInput()
-		classIndex, err := strconv.Atoi(classNumber)
-		if err != nil {
-			fmt.Println("Please enter a valid number.")
-			continue
-		}
+			classNumber := getUserInput()
+			classIndex, err := strconv.Atoi(classNumber)
+			if err != nil || classIndex < 1 || classIndex > len(classOptions) {
+				fmt.Println("Please enter a valid number.")
+				continue
+			}
 
-		class, ok := classOptions[classIndex]
-		if !ok {
-			fmt.Println("Please enter a valid number from the list.")
-		} else {
-			selectedClass = class
+			selectedClass = classOptions[classIndex]
 			break
 		}
+
+		character = NewCharacterBuilder().
+			SetName(name).
+			SetRace(selectedRace).
+			SetClass(selectedClass).
+			Build()
+
+		saveCharacterData(character)
+	} else if strings.ToLower(choice) == "l" {
+		character = loadCharacterData()
+		if character == nil {
+			fmt.Println("No character data found.")
+			return
+		}
+	} else {
+		fmt.Println("Invalid choice. Please enter 'N' for new character or 'L' for loading an existing character.")
+		return
 	}
 
-	character := NewCharacterBuilder().
-		SetName(name).
-		SetRace(selectedRace).
-		SetClass(selectedClass).
-		Build()
-
-	// Display character attributes
 	fmt.Printf("Character Name: %s\n", character.Name)
 	fmt.Printf("Character Race: %s\n", character.Race)
 	fmt.Printf("Character Class: %s\n", character.Class)
 }
 
-func getUserInput() string {
+func getUserInput() string { //string+os+bufio
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
-	// Remove trailing newline character
 	input = strings.TrimSpace(input)
 	return input
+}
+
+func displayOptions(options map[int]string) {
+	for i, option := range options {
+		fmt.Printf("%d. %s\n", i, option)
+	}
+}
+
+func saveCharacterData(character *Character) { //io/ioutil
+	data := fmt.Sprintf("Name: %s\nRace: %s\nClass: %s\n", character.Name, character.Race, character.Class)
+	err := ioutil.WriteFile("data.txt", []byte(data), 0644)
+	if err != nil {
+		fmt.Println("Failed to save character data:", err)
+	}
+}
+
+func loadCharacterData() *Character { //io/ioutil
+	data, err := ioutil.ReadFile("data.txt")
+	if err != nil {
+		return nil
+	}
+
+	lines := strings.Split(string(data), "\n")
+	if len(lines) < 3 {
+		return nil
+	}
+
+	name := strings.TrimPrefix(lines[0], "Name: ")
+	race := strings.TrimPrefix(lines[1], "Race: ")
+	class := strings.TrimPrefix(lines[2], "Class: ")
+
+	return &Character{
+		Name:  name,
+		Race:  race,
+		Class: class,
+	}
 }
