@@ -199,32 +199,6 @@ func (tf *TaurenFactory) CreateCharacter(name, class string) Character {
 	}
 }
 
-// Character is the base character interface.
-type Character interface {
-	GetRace() string
-	GetClass() string
-	GetName() string
-	EquipArmor()
-	EquipSetArmor(armorType string) bool
-	ApplyDebuff()
-}
-
-// CharacterDecorator is a decorator pattern for adding abilities to characters.
-type CharacterDecorator struct {
-	Character
-	Ability string
-}
-
-func (cd *CharacterDecorator) EquipArmor() {
-	cd.Character.EquipArmor()
-	fmt.Printf("Adding %s ability to %s's armor.\n", cd.Ability, cd.GetName())
-}
-
-func (cd *CharacterDecorator) ApplyDebuff() {
-	cd.Character.ApplyDebuff()
-	fmt.Printf("%s suffers a debuff because of wearing non-class armor.\n", cd.GetName())
-}
-
 // Implement concrete character types for each race and class.
 // Ensure that each character type applies debuffs when wearing non-class armor.
 
