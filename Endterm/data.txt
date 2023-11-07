@@ -1,0 +1,3 @@
+Name: Arthas Menethil
+Race: Human
+Class: Paladin

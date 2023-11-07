@@ -1,307 +1,202 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
 )
 
-// Races
-const (
-	RaceBloodElf = "Blood Elf"
-	RaceDraenei  = "Draenei"
-	RaceDwarf    = "Dwarf"
-	RaceGnome    = "Gnome"
-	RaceHuman    = "Human"
-	RaceNightElf = "Night Elf"
-	RaceOrc      = "Orc"
-	RaceTauren   = "Tauren"
-	RaceTroll    = "Troll"
-	RaceUndead   = "Undead"
-)
-
-// Classes
-const (
-	ClassPriest      = "Priest"
-	ClassMage        = "Mage"
-	ClassWarlock     = "Warlock"
-	ClassRogue       = "Rogue"
-	ClassFeral       = "Feral"
-	ClassBoomkin     = "Boomkin"
-	ClassHunter      = "Hunter"
-	ClassShaman      = "Shaman"
-	ClassWarrior     = "Warrior"
-	ClassPaladin     = "Paladin"
-	ClassDeathKnight = "Death Knight"
-)
-
-// Armor types
-const (
-	Cloth     = "Cloth"
-	Leather   = "Leather"
-	ChainMail = "Chain Mail"
-	Plate     = "Plate"
-)
-
-// CharacterFactory is a singleton that manages character creation.
-type CharacterFactory struct{}
-
-func (cf *CharacterFactory) CreateCharacter(race, class, name string) Character {
-	// You can extend this to support more races and classes.
-	raceFactory := cf.GetRaceFactory(race)
-	return raceFactory.CreateCharacter(name, class)
+var validRaces = []string{
+	"Blood Elf",
+	"Draenei",
+	"Dwarf",
+	"Gnome",
+	"Human",
+	"Night Elf",
+	"Orc",
+	"Tauren",
+	"Troll",
+	"Undead",
 }
 
-func (cf *CharacterFactory) GetRaceFactory(race string) RaceFactory {
-	// You can extend this to support more races and factories.
-	switch race {
-	case RaceHuman:
-		return &HumanFactory{}
-	case RaceOrc:
-		return &OrcFactory{}
-	// Add more cases for other races
-	default:
-		return nil
-	}
+var validClasses = []string{
+	"Paladin",
+	"Mage",
+	"Warrior",
+	"Priest",
+	"Death Knight",
 }
 
-// RaceFactory is the abstract factory interface for creating characters of different races.
-type RaceFactory interface {
-	CreateCharacter(name, class string) Character
+var raceOptions = map[int]string{
+	1:  "Blood Elf",
+	2:  "Draenei",
+	3:  "Dwarf",
+	4:  "Gnome",
+	5:  "Human",
+	6:  "Night Elf",
+	7:  "Orc",
+	8:  "Tauren",
+	9:  "Troll",
+	10: "Undead",
 }
 
-// ClassStrategy is the strategy interface for equipping armor based on a character's class.
-type ClassStrategy interface {
-	EquipArmor(character Character)
-	MainStat() string
+var classOptions = map[int]string{
+	1: "Paladin",
+	2: "Mage",
+	3: "Warrior",
+	4: "Priest",
+	5: "Death Knight",
 }
 
-// Character is the base character interface.
-type Character interface {
-	GetRace() string
-	GetClass() string
-	GetName() string
-	EquipArmor()
-	EquipSetArmor(armorType string) bool
-	ApplyDebuff()
-}
-
-// CharacterDecorator is a decorator pattern for adding abilities to characters.
-type CharacterDecorator struct {
-	Character
-	Ability string
-}
-
-func (cd *CharacterDecorator) EquipArmor() {
-	cd.Character.EquipArmor()
-	fmt.Printf("Adding %s ability to %s's armor.\n", cd.Ability, cd.GetName())
-}
-
-func (cd *CharacterDecorator) ApplyDebuff() {
-	cd.Character.ApplyDebuff()
-	fmt.Printf("%s suffers a debuff because of wearing non-class armor.\n", cd.GetName())
-}
-
-// HumanFactory is a concrete factory for creating Human characters.
-type HumanFactory struct{}
-
-func (hf *HumanFactory) CreateCharacter(name, class string) Character {
-	return &HumanCharacter{
-		Race:  RaceHuman,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// OrcFactory is a concrete factory for creating Orc characters.
-type OrcFactory struct{}
-
-func (of *OrcFactory) CreateCharacter(name, class string) Character {
-	return &OrcCharacter{
-		Race:  RaceOrc,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// DwarfFactory is a concrete factory for creating Dwarf characters.
-type DwarfFactory struct{}
-
-func (df *DwarfFactory) CreateCharacter(name, class string) Character {
-	return &DwarfCharacter{
-		Race:  RaceDwarf,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// ElfFactory is a concrete factory for creating Elf characters.
-type BloodElfFactory struct{}
-
-func (ef *BloodElfFactory) CreateCharacter(name, class string) Character {
-	return &BloodElfCharacter{
-		Race:  RaceBloodElf,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// UndeadFactory is a concrete factory for creating Undead characters.
-type UndeadFactory struct{}
-
-func (uf *UndeadFactory) CreateCharacter(name, class string) Character {
-	return &UndeadCharacter{
-		Race:  RaceUndead,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// GnomeFactory is a concrete factory for creating Gnome characters.
-type GnomeFactory struct{}
-
-func (gf *GnomeFactory) CreateCharacter(name, class string) Character {
-	return &GnomeCharacter{
-		Race:  RaceGnome,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// TrollFactory is a concrete factory for creating Troll characters.
-type TrollFactory struct{}
-
-func (tf *TrollFactory) CreateCharacter(name, class string) Character {
-	return &TrollCharacter{
-		Race:  RaceTroll,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// NightElfFactory is a concrete factory for creating Night Elf characters.
-type NightElfFactory struct{}
-
-func (nef *NightElfFactory) CreateCharacter(name, class string) Character {
-	return &NightElfCharacter{
-		Race:  RaceNightElf,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// TaurenFactory is a concrete factory for creating Tauren characters.
-type TaurenFactory struct{}
-
-func (tf *TaurenFactory) CreateCharacter(name, class string) Character {
-	return &TaurenCharacter{
-		Race:  RaceTauren,
-		Class: class,
-		Name:  name,
-	}
-}
-
-// Character is the base character interface.
-type Character interface {
-	GetRace() string
-	GetClass() string
-	GetName() string
-	EquipArmor()
-	EquipSetArmor(armorType string) bool
-	ApplyDebuff()
-}
-
-// CharacterDecorator is a decorator pattern for adding abilities to characters.
-type CharacterDecorator struct {
-	Character
-	Ability string
-}
-
-func (cd *CharacterDecorator) EquipArmor() {
-	cd.Character.EquipArmor()
-	fmt.Printf("Adding %s ability to %s's armor.\n", cd.Ability, cd.GetName())
-}
-
-func (cd *CharacterDecorator) ApplyDebuff() {
-	cd.Character.ApplyDebuff()
-	fmt.Printf("%s suffers a debuff because of wearing non-class armor.\n", cd.GetName())
-}
-
-// Implement concrete character types for each race and class.
-// Ensure that each character type applies debuffs when wearing non-class armor.
-
-// Example for a Warrior character:
-type WarriorCharacter struct {
+type Character struct {
+	Name  string
 	Race  string
 	Class string
-	Name  string
 }
 
-func (wc *WarriorCharacter) EquipArmor() {
-	fmt.Printf("%s equips Warrior armor.\n", wc.GetName())
+type CharacterBuilder struct {
+	character *Character
 }
 
-func (wc *WarriorCharacter) EquipSetArmor(armorType string) bool {
-	if armorType == "Plate" {
-		return true // Warriors can equip Plate armor without debuffs.
-	} else {
-		return false // Applying debuff for wearing non-Plate armor.
-	}
+var builderInstance *CharacterBuilder
+var builderOnce sync.Once
+
+func GetCharacterBuilder() *CharacterBuilder {
+	builderOnce.Do(func() {
+		builderInstance = &CharacterBuilder{character: &Character{}}
+	})
+	return builderInstance
 }
 
-func (wc *WarriorCharacter) ApplyDebuff() {
-	fmt.Printf("%s suffers a Strength debuff.\n", wc.GetName())
+func NewCharacterBuilder() *CharacterBuilder {
+	return GetCharacterBuilder()
 }
 
-// Implement similar character types for other classes (e.g., RogueCharacter, MageCharacter, etc.) and ensure they apply debuffs as needed.
+func (cb *CharacterBuilder) SetName(name string) *CharacterBuilder {
+	cb.character.Name = name
+	return cb
+}
 
-// ...
+func (cb *CharacterBuilder) SetRace(race string) *CharacterBuilder {
+	cb.character.Race = race
+	return cb
+}
 
-// Implement the concrete character types for each race and class (e.g., HumanCharacter, OrcCharacter, etc.).
-// Ensure that these characters apply debuffs for wearing non-class armor as per your requirements.
+func (cb *CharacterBuilder) SetClass(class string) *CharacterBuilder {
+	cb.character.Class = class
+	return cb
+}
+
+func (cb *CharacterBuilder) Build() *Character {
+	return cb.character
+}
 
 func main() {
-	// Singleton: Create a character creation system (CharacterFactory) as a single instance.
-	characterFactory := &CharacterFactory{}
+	fmt.Print("Do you want to create a new character (N) or load an existing character (L): ")
+	choice := getUserInput()
 
-	// Let the player choose the race and class for customization.
-	race := RaceHuman
-	class := ClassWarrior
-	name := "Timur"
+	var character *Character
 
-	// Create the character with the chosen race and class.
-	character := characterFactory.CreateCharacter(race, class, name)
+	if strings.ToLower(choice) == "n" {
+		fmt.Print("Enter your character's name: ")
+		name := getUserInput()
 
-	// Strategy: Equip armor based on the character's class.
-	armorStrategy := getArmorStrategy(class)
-	character.EquipArmorStrategy(armorStrategy)
+		var selectedRace string
+		for {
+			fmt.Println("Choose your character's race:")
+			for i, validRace := range validRaces {
+				fmt.Printf("%d. %s\n", i+1, validRace)
+			}
 
-	// Decorator: Add abilities to characters.
-	enhancedCharacter := &CharacterDecorator{
-		Character: character,
-		Ability:   "Strength",
+			raceNumber := getUserInput()
+			raceIndex, err := strconv.Atoi(raceNumber)
+			if err != nil || raceIndex < 1 || raceIndex > len(raceOptions) {
+				fmt.Println("Please enter a valid number.")
+				continue
+			}
+
+			selectedRace = raceOptions[raceIndex]
+			break
+		}
+
+		var selectedClass string
+		for {
+			fmt.Println("Choose your character's class:")
+			for i, validClass := range validClasses {
+				fmt.Printf("%d. %s\n", i+1, validClass)
+			}
+
+			classNumber := getUserInput()
+			classIndex, err := strconv.Atoi(classNumber)
+			if err != nil || classIndex < 1 || classIndex > len(classOptions) {
+				fmt.Println("Please enter a valid number.")
+				continue
+			}
+
+			selectedClass = classOptions[classIndex]
+			break
+		}
+
+		character = NewCharacterBuilder().
+			SetName(name).
+			SetRace(selectedRace).
+			SetClass(selectedClass).
+			Build()
+
+		saveCharacterData(character)
+	} else if strings.ToLower(choice) == "l" {
+		character = loadCharacterData()
+		if character == nil {
+			fmt.Println("No character data found.")
+			return
+		}
+	} else {
+		fmt.Println("Invalid choice. Please enter 'N' for a new character or 'L' for loading an existing character.")
+		return
 	}
-	enhancedCharacter.EquipArmor()
-	enhancedCharacter.ApplyDebuff()
+
+	fmt.Printf("Character Name: %s\n", character.Name)
+	fmt.Printf("Character Race: %s\n", character.Race)
+	fmt.Printf("Character Class: %s\n", character.Class)
 }
 
-func getArmorStrategy(class string) ClassStrategy {
-	// Implement strategies for each class based on the main stat.
-	switch class {
-	case ClassWarrior, ClassPaladin, ClassDeathKnight:
-		return &WarriorStrategy{}
-	case ClassRogue, ClassFeral, ClassBoomkin:
-		return &RogueStrategy{}
-	case ClassHunter:
-		return &HunterStrategy{}
-	case ClassShaman:
-		return &ShamanStrategy{}
-	case ClassPriest, ClassMage, ClassWarlock, ClassBoomkin:
-		return &CasterStrategy{}
-	// Add more cases for other classes
-	default:
-		return &DefaultStrategy{}
+func getUserInput() string {
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+	return input
+}
+
+func saveCharacterData(character *Character) {
+	data := fmt.Sprintf("Name: %s\nRace: %s\nClass: %s\n", character.Name, character.Race, character.Class)
+	err := ioutil.WriteFile("data.txt", []byte(data), 0644)
+	if err != nil {
+		fmt.Println("Failed to save character data:", err)
 	}
 }
 
-// Implement concrete armor strategies for each class based on main stat.
+func loadCharacterData() *Character {
+	data, err := ioutil.ReadFile("data.txt")
+	if err != nil {
+		return nil
+	}
 
-// Implement methods to check if a character can equip a specific armor set.
+	lines := strings.Split(string(data), "\n")
+	if len(lines) < 3 {
+		return nil
+	}
+
+	name := strings.TrimPrefix(lines[0], "Name: ")
+	race := strings.TrimPrefix(lines[1], "Race: ")
+	class := strings.TrimPrefix(lines[2], "Class: ")
+
+	return &Character{
+		Name:  name,
+		Race:  race,
+		Class: class,
+	}
+}
