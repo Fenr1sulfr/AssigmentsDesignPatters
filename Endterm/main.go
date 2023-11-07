@@ -8,7 +8,6 @@ import (
 	"strings"
 )
 
-	RaceGnome    = "Gnome"
 var validRaces = []string{
 	"Blood Elf",
 	"Draenei",
