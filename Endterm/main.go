@@ -231,7 +231,22 @@ func (wc *WarriorCharacter) ApplyDebuff() {
 
 // Implement the concrete character types for each race and class (e.g., HumanCharacter, OrcCharacter, etc.).
 // Ensure that these characters apply debuffs for wearing non-class armor as per your requirements.
-
+func getArmorStrategy(class string) ClassStrategy {
+	// Implement strategies for each class based on the main stat.
+	switch class {
+	case ClassWarrior, ClassPaladin, ClassDeathKnight:
+		return &PlateStrategy{}
+	case ClassRogue, ClassFeral:
+		return &LeatherStrategy{}
+	case ClassHunter:
+		return &ChainStrategy{}
+	case ClassShaman, ClassPriest, ClassMage, ClassWarlock, ClassBoomkin:
+		return &CasterStrategy{}
+	// Add more cases for other classes
+	default:
+		return &DefaultStrategy{}
+	}
+}
 func main() {
 	// Singleton: Create a character creation system (CharacterFactory) as a single instance.
 	characterFactory := &CharacterFactory{}
@@ -255,25 +270,6 @@ func main() {
 	}
 	enhancedCharacter.EquipArmor()
 	enhancedCharacter.ApplyDebuff()
-}
-
-func getArmorStrategy(class string) ClassStrategy {
-	// Implement strategies for each class based on the main stat.
-	switch class {
-	case ClassWarrior, ClassPaladin, ClassDeathKnight:
-		return &WarriorStrategy{}
-	case ClassRogue, ClassFeral, ClassBoomkin:
-		return &RogueStrategy{}
-	case ClassHunter:
-		return &HunterStrategy{}
-	case ClassShaman:
-		return &ShamanStrategy{}
-	case ClassPriest, ClassMage, ClassWarlock, ClassBoomkin:
-		return &CasterStrategy{}
-	// Add more cases for other classes
-	default:
-		return &DefaultStrategy{}
-	}
 }
 
 // Implement concrete armor strategies for each class based on main stat.
