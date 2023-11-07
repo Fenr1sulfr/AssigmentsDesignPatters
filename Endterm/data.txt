@@ -1,3 +1,5 @@
-Name: Arthas Menethil
+Name: asd
 Race: Human
 Class: Paladin
+Weapon: Shield
+Offhand: One-handed Sword
