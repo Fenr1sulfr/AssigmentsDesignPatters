@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -422,14 +421,14 @@ func getUserInput() string {
 
 func saveCharacterData(character *Character) {
 	data := fmt.Sprintf("Name: %s\nRace: %s\nClass: %s\nWeapon: %s\nOffhand: %s\n", character.Name, character.Race, character.Class, character.Weapon.getName(), character.Offhand.getName())
-	err := ioutil.WriteFile("data.txt", []byte(data), 0644)
+	err := os.WriteFile("data.txt", []byte(data), 0644)
 	if err != nil {
 		fmt.Println("Failed to save character data:", err)
 	}
 }
 
 func loadCharacterData() *Character {
-	data, err := ioutil.ReadFile("data.txt")
+	data, err := os.ReadFile("data.txt")
 	if err != nil {
 		return nil
 	}

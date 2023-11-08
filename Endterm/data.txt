@@ -1,5 +1,5 @@
-Name: 1
-Race: Blood Elf
-Class: Paladin
-Weapon: Shield, Curse of N'Zoth
-Offhand: One-handed Sword, Curse of N'Zoth
+Name: Lama
+Race: Troll
+Class: Mage
+Weapon: Magic Wand, Consecrated by Azeroth
+Offhand: You can't use this hand
