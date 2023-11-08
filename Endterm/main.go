@@ -69,7 +69,6 @@ type TwoHandSword struct {
 	Weapon
 }
 
-// нужно посмотреть как сделать здесь decorator
 func newBigSword() IWeapon {
 	return &TwoHandSword{
 		Weapon: Weapon{
@@ -265,7 +264,7 @@ type NzothWeaponDecor struct {
 }
 
 func (nd *NzothWeaponDecor) setName(name string) {
-	nd.weapon.setName(name + ", N'Zoth")
+	nd.weapon.setName(name + ", Curse of N'Zoth")
 }
 func (nd *NzothWeaponDecor) setDamage(damage int) {
 	nd.weapon.setDamage(damage + 10)
@@ -297,19 +296,19 @@ func (az *AzerothDecor) getDamage() int {
 	return az.weapon.getDamage()
 }
 func (az *AzerothDecor) getAttack() string {
-	return az.weapon.getAttack() + " , Azeroth give you more power"
+	return az.weapon.getAttack() + " , Azeroth gives you more power"
 }
 func (az *AzerothDecor) AzWeap(name string, damage int) {
 	az.setName(name)
 	az.setDamage(damage)
-	attackDescription := az.getAttack()
-	fmt.Printf("Weapon: %s\nDamage: %d\nAttack: %s\n", az.getName(), az.getDamage(), attackDescription)
+	// attackDescription := az.getAttack()
+	// //fmt.Printf("Weapon: %s\nDamage: %d\nAttack: %s\n", az.getName(), az.getDamage(), attackDescription)
 }
 func (nd *NzothWeaponDecor) NWeap(name string, damage int) {
 	nd.setName(name)
 	nd.setDamage(damage)
-	attackDescription := nd.getAttack()
-	fmt.Printf("Weapon: %s\nDamage: %d\nAttack: %s\n", nd.getName(), nd.getDamage(), attackDescription)
+	// attackDescrind.getAttack()
+	// // fmt.Printf("Weapon: %s\nDamage: %d\nAttack: %s\n", nd.getName(), nd.getDamage(), attackDescription)
 }
 
 func main() {
@@ -366,8 +365,25 @@ func main() {
 		}
 		fmt.Print("Are you an honorable hero striving to protect Azeroth, or do you embrace the darkness and walk the path of a cunning villain? (A/N)")
 		side := getUserInput()
-		if strings.ToLower(side) == "A" {
-
+		if strings.ToLower(side) == "n" {
+			nzothWeapon := &NzothWeaponDecor{weapon: selectedWeapon}
+			nzothWeapon.NWeap(nzothWeapon.getName(), selectedWeapon.getDamage())
+			ofNzothWeapon := &NzothWeaponDecor{weapon: selectedOffhand}
+			if selectedOffhand.getDamage() > 0 {
+				ofNzothWeapon.NWeap(ofNzothWeapon.getName(), selectedOffhand.getDamage())
+				selectedOffhand = ofNzothWeapon
+			}
+			selectedWeapon = nzothWeapon
+		}
+		if strings.ToLower(side) == "a" {
+			azerothWeapon := &AzerothDecor{weapon: selectedWeapon}
+			azerothWeapon.AzWeap(azerothWeapon.getName(), selectedWeapon.getDamage())
+			selectedWeapon = azerothWeapon
+			ofAzerothWeapon := &AzerothDecor{weapon: selectedOffhand}
+			if selectedOffhand.getDamage() > 0 {
+				ofAzerothWeapon.AzWeap(ofAzerothWeapon.getName(), selectedOffhand.getDamage())
+				selectedOffhand = ofAzerothWeapon
+			}
 		}
 		character = NewCharacterBuilder().
 			SetName(name).
@@ -378,6 +394,7 @@ func main() {
 			Build()
 
 		saveCharacterData(character)
+
 	} else if strings.ToLower(choice) == "l" {
 		character = loadCharacterData()
 		if character == nil {
@@ -394,7 +411,7 @@ func main() {
 	fmt.Printf("Character Class: %s\n", character.Class)
 	fmt.Printf("Character Weapon: %s\n", character.Weapon.getName())
 	fmt.Printf("Character Offhand: %s\n", character.Offhand.getName())
-}
+
 
 func getUserInput() string {
 	reader := bufio.NewReader(os.Stdin)

@@ -1,5 +1,5 @@
-Name: asd
-Race: Human
+Name: 1
+Race: Blood Elf
 Class: Paladin
-Weapon: Shield
-Offhand: One-handed Sword
+Weapon: Shield, Curse of N'Zoth
+Offhand: One-handed Sword, Curse of N'Zoth
