@@ -411,7 +411,7 @@ func main() {
 	fmt.Printf("Character Class: %s\n", character.Class)
 	fmt.Printf("Character Weapon: %s\n", character.Weapon.getName())
 	fmt.Printf("Character Offhand: %s\n", character.Offhand.getName())
-
+}
 
 func getUserInput() string {
 	reader := bufio.NewReader(os.Stdin)
