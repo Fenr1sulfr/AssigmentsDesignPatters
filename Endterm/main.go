@@ -392,17 +392,6 @@ func main() {
 			SetOffhand(selectedOffhand).
 			Build()
 
-		saveCharacterData(character)
-
-	} else if strings.ToLower(choice) == "l" {
-		character = loadCharacterData()
-		if character == nil {
-			fmt.Println("No character data found.")
-			return
-		}
-	} else {
-		fmt.Println("Invalid choice. Please enter 'N' for a new character or 'L' for loading an existing character.")
-		return
 	}
 
 	fmt.Printf("Character Name: %s\n", character.Name)
@@ -417,62 +406,4 @@ func getUserInput() string {
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimSpace(input)
 	return input
-}
-
-func saveCharacterData(character *Character) {
-	data := fmt.Sprintf("Name: %s\nRace: %s\nClass: %s\nWeapon: %s\nOffhand: %s\n", character.Name, character.Race, character.Class, character.Weapon.getName(), character.Offhand.getName())
-	err := os.WriteFile("data.txt", []byte(data), 0644)
-	if err != nil {
-		fmt.Println("Failed to save character data:", err)
-	}
-}
-
-func loadCharacterData() *Character {
-	data, err := os.ReadFile("data.txt")
-	if err != nil {
-		return nil
-	}
-
-	lines := strings.Split(string(data), "\n")
-	if len(lines) < 5 {
-		return nil
-	}
-
-	name := strings.TrimPrefix(lines[0], "Name: ")
-	race := strings.TrimPrefix(lines[1], "Race: ")
-	class := strings.TrimPrefix(lines[2], "Class: ")
-	weaponName := strings.TrimPrefix(lines[3], "Character Weapon: ")
-	offhandName := strings.TrimPrefix(lines[4], "Character Offhand: ")
-
-	weapon := getWeaponByName(weaponName)
-	offhand := getWeaponByName(offhandName)
-
-	return &Character{
-		Name:    name,
-		Race:    race,
-		Class:   class,
-		Weapon:  weapon,
-		Offhand: offhand,
-	}
-}
-
-type WeaponMap map[string]IWeapon
-
-var weapons WeaponMap
-
-func init() {
-	weapons = make(WeaponMap)
-	weapons["One-handed Sword"] = newSword()
-	weapons["Shield"] = newShield()
-	weapons["BigSword"] = newBigSword()
-	weapons["Wand"] = newWand()
-	weapons["Staff"] = newStaff()
-}
-
-func getWeaponByName(name string) IWeapon {
-	weapon, found := weapons[name]
-	if !found {
-		return newBlockedWeapon()
-	}
-	return weapon
 }
