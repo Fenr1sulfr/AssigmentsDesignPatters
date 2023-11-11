@@ -362,7 +362,7 @@ func main() {
 		if err != nil {
 			fmt.Println("error:", err)
 		}
-		fmt.Print("Are you an honorable hero striving to protect Azeroth, or do you embrace the darkness and walk the path of a cunning villain? (A/N)")
+		fmt.Print("Are you an honorable hero striving to protect Azeroth, or do you embrace the darkness and walk the path of a cunning villain? (A/N)\n")
 		side := getUserInput()
 		if strings.ToLower(side) == "n" {
 			nzothWeapon := &NzothWeaponDecor{weapon: selectedWeapon}
